@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="channels">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" name="channel">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="name" type="xs:string" />
+              <xs:element name="number" type="xs:unsignedShort" />
+              <xs:element name="image" type="xs:string" />
+              <xs:element name="url" type="xs:string" />
+              <xs:element minOccurs="0" name="replayurl" type="xs:string" />
+              <xs:element name="enabled" type="xs:boolean" />
+              <xs:element name="wbaepgid" type="xs:unsignedInt" />
+              <xs:element name="callletters" type="xs:string" />
+              <xs:element name="tags">
+                <xs:complexType>
+                  <xs:sequence minOccurs="0">
+                    <xs:element maxOccurs="unbounded" name="tag" type="xs:string" />
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+            <xs:attribute name="lang" type="xs:string" use="required" />
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+      <xs:attribute name="generator-info-name" type="xs:string" use="required" />
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
