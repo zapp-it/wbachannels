@@ -274,10 +274,10 @@ def _getdtvpackagefilelistnametosave(channelstree):
 
   # First get or load the DTV packages for the WBA channels.
   global dtvconfiglist
-  dtvconfiglist = dtvlist
+  dtvconfiglist = dict(parser.items(dtvpackagelistsection))
 
   if verbose:
-    print("The DTV config pacakges list is %s.\n" % dtvlist)
+    print("The DTV config pacakges list is %s.\n" % dtvconfiglist)
 
 def main():
   """
