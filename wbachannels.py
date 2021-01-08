@@ -160,18 +160,6 @@ def _getchannels(channelstree):
             etree.SubElement(channelinformation, "wbaepgid").text = channelid
             etree.SubElement(channelinformation, "callletters").text = channelcallletters
         
-            # DTV tags.
-            channelsdtv = channelstream.find(".//DTVPackageList")
-            if channelsdtv is not None:
-              tags = etree.SubElement(channelinformation, "tags")
-              
-              for channeldtv in channelsdtv:
-                if dtvconfiglist[channeldtv.text] != "":
-                  etree.SubElement(tags, "tag").text = dtvconfiglist[channeldtv.text]
-                
-              if len(extension) > 0:
-                etree.SubElement(tags, "tag").text = extension
-        
       if verbose:  
         print(etree.tostring(root, encoding = "UTF-8", pretty_print = True).decode())
       
@@ -188,96 +176,6 @@ def _getchannels(channelstree):
       print(err)
       print("Could not read the channels information from the %s file, the error is %s.\n" % (channelsrawfilenametosave, err))
       return 1
-
-
-def _getdtvpackagefilelistnametosave(channelstree):
-  """
-  Gets the DTV packages numbers used for the WBA TV packages.
-  """
-  try:
-    parser = configparser.ConfigParser(allow_no_value = True)
-  
-    # Don't use the lowercase option of the ConfigParser.
-    parser.optionxform = str
-
-    with open(dtvpackagefilelistnametosave) as dtvfile:
-      parser.read_file(dtvfile)
-      dtvfile.close()
-    
-  except IOError as err:
-    if verbose:
-      print("The file %s does not exists, the error is %s.\n" % (dtvpackagefilelistnametosave, err))
-
-    try:
-      # Create the new dtvpackagefilelistnametosave file.
-      with open(dtvpackagefilelistnametosave, "w") as dtvfile:
-        parser.add_section(dtvpackagelistsection)
-        parser.write(dtvfile)
-        dtvfile.close()
-   
-    except IOError as err:
-      # Can not create the dtvpackagefilelistnametosave.set file.
-      print("Can not create the %s file, the error is %s.\n" % (dtvpackagefilelistnametosave, err))
-      return 1
-  
-  dtvlist = dict(parser.items(dtvpackagelistsection))
-  
-  if verbose:
-    print("The length of the config file DTV packages is %s.\n"% len(dtvlist))
-  
-  dtvpackages = channelstree.findall(dtvpackagestree)
-  
-  dtvpackagelist = []
-  
-  if len(dtvpackages) > 0:
-     
-    for dtvpackage in dtvpackages:
-      dtvvalue = dtvpackage.text
-      if not dtvpackage.text in dtvpackagelist:
-        dtvpackagelist.append(dtvvalue)
-        
-        if verbose:
-          print("The DTV package number is %s." % dtvvalue)
-      
-    dtvpackagelist = dict.fromkeys(dtvpackagelist, None)
-    
-    # Find which dtv packages are not in packages config list file.
-    missingdtvpackageslist = (dtvpackagelist.keys() - dtvlist.keys())
-    
-    if len(missingdtvpackageslist) > 0:
-      
-      missingdtvpackageslist = dict.fromkeys(missingdtvpackageslist, None)
-    
-      if verbose:
-        print("The missing DTV packages in the config are %s.\n" % missingdtvpackageslist)
-    
-      for key in missingdtvpackageslist:
-        dtvlist[key] = ""
-      
-      dtvlist = sorted(dtvlist.items(), key = lambda x: int(x[0]))
-      dtvlist = dict.fromkeys(dtvlist, "")
-
-      if len(missingdtvpackageslist) > 0 :
-        
-        parser.clear()
-        parser.add_section(dtvpackagelistsection)
-
-        for key in dtvlist:
-          parser.set("dtv package list", key[0], key[1])
-      
-        with open(dtvpackagefilelistnametosave, "w") as dtvfile:
-          parser.write(dtvfile)
-          dtvfile.close()
-
-  else:
-    return 1
-
-  # First get or load the DTV packages for the WBA channels.
-  global dtvconfiglist
-  dtvconfiglist = dict(parser.items(dtvpackagelistsection))
-
-  if verbose:
-    print("The DTV config pacakges list is %s.\n" % dtvconfiglist)
 
 def main():
   """
@@ -355,7 +253,6 @@ def main():
       if verbose:
         print("Written the new %s file.\n" % channelsrawfilenametosave)
       
-      _getdtvpackagefilelistnametosave(channelstree)
       _getchannels(channelstree)
   
   return 0
@@ -474,11 +371,6 @@ if __name__ == "__main__":
     # Channels information variables.
     wbachannelslisttree = ".//ChannelList/Channel"
     
-    # DTV package information variables.
-    dtvpackagefilelistnametosave = os.path.join(directorytosavefiles, "dtvpackagefilelist.set")
-    dtvpackagelistsection = "dtv package list"
-    dtvpackagestree = ".//ChannelList/Channel/DTVPackageList/DTVPackage"
-
     dryrun = options.dry
     verbose = options.verbose
 
