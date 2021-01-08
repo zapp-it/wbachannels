@@ -159,7 +159,11 @@ def _getchannels(channelstree):
             etree.SubElement(channelinformation, "enabled").text = enabled
             etree.SubElement(channelinformation, "wbaepgid").text = channelid
             etree.SubElement(channelinformation, "callletters").text = channelcallletters
-        
+            
+            tags = etree.SubElement(channelinformation, "tags")      
+            if len(extension) > 0:
+              etree.SubElement(tags, "tag").text = extension 
+      
       if verbose:  
         print(etree.tostring(root, encoding = "UTF-8", pretty_print = True).decode())
       
